@@ -17,7 +17,11 @@ typedef enum {
     DIR_UP,
     DIR_DOWN,
     DIR_LEFT,
-    DIR_RIGHT
+    DIR_RIGHT,
+    DIR_UPLEFT,
+    DIR_UPRIGHT,
+    DIR_DOWNLEFT,
+    DIR_DOWNRIGHT
 } Direction;
 
 struct projectile {
@@ -109,7 +113,7 @@ void process_input() {
             if (event.key.keysym.sym == SDLK_DOWN) down_pressed = TRUE;
             if (event.key.keysym.sym == SDLK_RIGHT) right_pressed = TRUE;
             if (event.key.keysym.sym == SDLK_LEFT) left_pressed = TRUE;
-            if (event.key.keysym.sym == SDLK_c) c_pressed = TRUE;
+            if (event.key.keysym.sym == SDLK_RCTRL) c_pressed = TRUE;
             break;
         case SDL_KEYUP:
             if (event.key.keysym.sym == SDLK_w) w_pressed = FALSE;
@@ -121,7 +125,7 @@ void process_input() {
             if (event.key.keysym.sym == SDLK_DOWN) down_pressed = FALSE;
             if (event.key.keysym.sym == SDLK_RIGHT) right_pressed = FALSE;
             if (event.key.keysym.sym == SDLK_LEFT) left_pressed = FALSE;
-            if (event.key.keysym.sym == SDLK_c) c_pressed = FALSE;
+            if (event.key.keysym.sym == SDLK_RCTRL) c_pressed = FALSE;
             break;
         }
     }
@@ -145,8 +149,8 @@ void setup() {
     // Estrutura da bola
     ball.x = WINDOW_WIDTH / 4;
     ball.y = WINDOW_HEIGHT / 2.16;
-    ball.width = 120;
-    ball.height = 120;
+    ball.width = 100;
+    ball.height = 100;
     ball.last_dir = DIR_RIGHT; // Direção inicial padrão
 
     // Carrega textura da bola
@@ -158,11 +162,11 @@ void setup() {
     // Estrutura do quadrado
     square.x = WINDOW_WIDTH / 1.47;
     square.y = WINDOW_HEIGHT / 2.16;
-    square.width = 120;
-    square.height = 120;
+    square.width = 100;
+    square.height = 100;
     square.last_dir = DIR_LEFT;
 
-    tmpSurface = IMG_Load("assets/tale.png");
+    tmpSurface = IMG_Load("assets/miranha.png");
     if (tmpSurface) {
         square.texture = SDL_CreateTextureFromSurface(renderer, tmpSurface);
         SDL_FreeSurface(tmpSurface);
@@ -242,6 +246,18 @@ void update() {
         ball.y += 500 * delta_time;
         ball.last_dir = DIR_DOWN;
     }
+    if (a_pressed && w_pressed) {
+        ball.last_dir = DIR_UPLEFT;     
+    }
+    if (a_pressed && s_pressed) {
+        ball.last_dir = DIR_DOWNLEFT;
+    }
+    if (d_pressed && w_pressed) {
+        ball.last_dir = DIR_UPRIGHT;
+    }
+    if (d_pressed && s_pressed) {
+        ball.last_dir = DIR_DOWNRIGHT;
+    }
     //Movimento de square
     if (left_pressed) {
         square.x -= 500 * delta_time;
@@ -259,7 +275,18 @@ void update() {
         square.y += 500 * delta_time;
         square.last_dir = DIR_DOWN;
     }
-
+    if (left_pressed && up_pressed) {
+        square.last_dir = DIR_UPLEFT;
+    }
+    if (left_pressed && down_pressed) {
+        square.last_dir = DIR_DOWNLEFT;
+    }
+    if (up_pressed && right_pressed) {
+        square.last_dir = DIR_UPRIGHT;
+    }
+    if (right_pressed && down_pressed) {
+        square.last_dir = DIR_DOWNRIGHT;
+    }
     // Disparo de projéteis
     if (space_pressed) {
         fire_projectile(FALSE);
@@ -274,14 +301,14 @@ void update() {
     for (int i = 0; i < MAX_PROJECTILES; i++) {
         if (projectiles[i].is_active) {
             if (!projectiles[i].from_square &&
-                check_collision(projectiles[i].x, projectiles[i].y, 30, 30,
+                check_collision(projectiles[i].x, projectiles[i].y, 15, 15,
                     square.x, square.y, square.width, square.height)) {
                 printf("Square atingido!\n");
                 projectiles[i].is_active = FALSE;
                 square_life --;
             }
             if (projectiles[i].from_square &&
-                check_collision(projectiles[i].x, projectiles[i].y, 30, 30,
+                check_collision(projectiles[i].x, projectiles[i].y, 15, 15,
                     ball.x, ball.y, ball.width, ball.height)) {
                 printf("Ball atingido!\n");
                 projectiles[i].is_active = FALSE;
@@ -301,6 +328,10 @@ void update() {
             case DIR_DOWN:  projectiles[i].y += projectiles[i].speed * delta_time; break;
             case DIR_LEFT:  projectiles[i].x -= projectiles[i].speed * delta_time; break;
             case DIR_RIGHT: projectiles[i].x += projectiles[i].speed * delta_time; break;
+            case DIR_UPLEFT: projectiles[i].x -= projectiles[i].speed * delta_time, projectiles[i].y -= projectiles[i].speed * delta_time; break;
+            case DIR_UPRIGHT: projectiles[i].x += projectiles[i].speed * delta_time, projectiles[i].y -= projectiles[i].speed * delta_time; break;
+            case DIR_DOWNLEFT: projectiles[i].x -= projectiles[i].speed * delta_time, projectiles[i].y += projectiles[i].speed * delta_time; break;
+            case DIR_DOWNRIGHT: projectiles[i].x += projectiles[i].speed * delta_time, projectiles[i].y += projectiles[i].speed * delta_time; break;
             default: break;
             }
             // Remove projéteis que saíram da tela
@@ -314,6 +345,17 @@ void update() {
         square.x, square.y, square.width, square.height)) {
         printf("COLISÃO DETECTADA ENTRE BALL E SQUARE!\n");
     }
+    // Limitar posição da ball
+    if (ball.x < 0) ball.x = 0;
+    if (ball.y < 0) ball.y = 0;
+    if (ball.x + ball.width > WINDOW_WIDTH) ball.x = WINDOW_WIDTH - ball.width;
+    if (ball.y + ball.height > WINDOW_HEIGHT) ball.y = WINDOW_HEIGHT - ball.height;
+
+    // Limitar posição da square
+    if (square.x < 0) square.x = 0;
+    if (square.y < 0) square.y = 0;
+    if (square.x + square.width > WINDOW_WIDTH) square.x = WINDOW_WIDTH - square.width;
+    if (square.y + square.height > WINDOW_HEIGHT) square.y = WINDOW_HEIGHT - square.height;
 }
 
 void render() {
@@ -349,7 +391,7 @@ void render() {
     // Renderiza projéteis
     for (int i = 0; i < MAX_PROJECTILES; i++) {
         if (projectiles[i].is_active) {
-            SDL_Rect proj_rect = { (int)projectiles[i].x, (int)projectiles[i].y, 30, 30 };
+            SDL_Rect proj_rect = { (int)projectiles[i].x, (int)projectiles[i].y, 15, 15 };
             if (projectiles[i].texture) {
                 SDL_RenderCopy(renderer, projectiles[i].texture, NULL, &proj_rect);
             }
