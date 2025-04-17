@@ -7,3 +7,6 @@
 
 #define FPS 300
 #define FRAME_TARGET_TIME (1000/FPS)
+
+#define MAX_MAPAS 3
+#define MAX_OBSTACULOS 100
