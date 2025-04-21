@@ -1,9 +1,12 @@
 #define FALSE 0
 #define TRUE 1
 
-#define WINDOW_WIDTH 800
-#define WINDOW_HEIGHT 600
+#define WINDOW_WIDTH 1920
+#define WINDOW_HEIGHT 1080
 
 
-#define FPS 500
+#define FPS 300
 #define FRAME_TARGET_TIME (1000/FPS)
+
+#define MAX_MAPAS 3
+#define MAX_OBSTACULOS 100
