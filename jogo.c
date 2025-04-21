@@ -35,7 +35,7 @@ struct projectile {
     Direction dir;
     int is_active;
     int from_square;
-    SDL_Texture* texture;   
+    SDL_Texture* texture;
 }projectile;
 
 struct ball {
@@ -130,8 +130,8 @@ void process_input() {
             if (event.key.keysym.sym == SDLK_DOWN) down_pressed = TRUE;
             if (event.key.keysym.sym == SDLK_RIGHT) right_pressed = TRUE;
             if (event.key.keysym.sym == SDLK_LEFT) left_pressed = TRUE;
-            if (event.key.keysym.sym == SDLK_RCTRL) c_pressed = TRUE;
-			if (event.key.keysym.sym == SDLK_TAB) { mapa_atual = (mapa_atual + 1) % MAX_MAPAS; } // Troca de mapa com TAB
+            if (event.key.keysym.sym == SDLK_l) c_pressed = TRUE;
+            if (event.key.keysym.sym == SDLK_TAB) { mapa_atual = (mapa_atual + 1) % MAX_MAPAS; } // Troca de mapa com TAB
             break;
         case SDL_KEYUP:
             if (event.key.keysym.sym == SDLK_w) w_pressed = FALSE;
@@ -143,7 +143,7 @@ void process_input() {
             if (event.key.keysym.sym == SDLK_DOWN) down_pressed = FALSE;
             if (event.key.keysym.sym == SDLK_RIGHT) right_pressed = FALSE;
             if (event.key.keysym.sym == SDLK_LEFT) left_pressed = FALSE;
-            if (event.key.keysym.sym == SDLK_RCTRL) c_pressed = FALSE;
+            if (event.key.keysym.sym == SDLK_l) c_pressed = FALSE;
             break;
         }
     }
@@ -157,7 +157,7 @@ int check_collision(float x1, float y1, float w1, float h1,
 }
 
 void setup() {
-    
+
     const char* background_paths[MAX_MAPAS] = {
     "assets/background.png",
     "assets/background2.png",
@@ -179,9 +179,9 @@ void setup() {
     num_obstaculos[1] = 3;
     obstaculos[1][0] = (obstacle){ 650, 760, 550, 300 };
     obstaculos[1][1] = (obstacle){ 650, 200, 100, 500 };
-   // obstaculos[1][2] = (obstacle){ 350, 450, 120, 60 };
+    // obstaculos[1][2] = (obstacle){ 350, 450, 120, 60 };
 
-    // Obstáculos para o mapa 2
+     // Obstáculos para o mapa 2
     num_obstaculos[2] = 4;
     obstaculos[2][0] = (obstacle){ 650, 700, 500, 100 };
     obstaculos[2][1] = (obstacle){ 650, 300, 100, 500 };
@@ -229,11 +229,11 @@ void setup() {
         projectiles[i].speed = 800.0f;
         projectiles[i].texture = NULL;
 
-    // Cria superfície simples para o projétil 
-    tmpSurface = IMG_Load("assets/c.png");     
-    if (tmpSurface) {
-    projectiles[i].texture = SDL_CreateTextureFromSurface(renderer, tmpSurface);
-    SDL_FreeSurface(tmpSurface);
+        // Cria superfície simples para o projétil 
+        tmpSurface = IMG_Load("assets/c.png");
+        if (tmpSurface) {
+            projectiles[i].texture = SDL_CreateTextureFromSurface(renderer, tmpSurface);
+            SDL_FreeSurface(tmpSurface);
         }
     }
 }
@@ -243,7 +243,7 @@ void fire_projectile(int from_square) {
 
     if (from_square) {
         if (square.last_dir == DIR_NONE) {
-            return;  
+            return;
         }
         dir = square.last_dir;
         x = square.x + square.width / 2 - 5;
@@ -251,7 +251,7 @@ void fire_projectile(int from_square) {
     }
     else {
         if (ball.last_dir == DIR_NONE) {
-            return;  
+            return;
         }
         dir = ball.last_dir;
         x = ball.x + ball.width / 2 - 5;
@@ -372,110 +372,111 @@ void update() {
         square.y = next_square_y;
     }
 
-        // Disparo de projéteis
-        if (space_pressed) {
-            fire_projectile(FALSE);
-            space_pressed = FALSE;
-        }
-        if (c_pressed) {
-            fire_projectile(TRUE);
-            c_pressed = FALSE;
-        }
-        
-        // Verifica colisão com obstáculos
-        for (int i = 0; i < MAX_PROJECTILES; i++) {
-            if (projectiles[i].is_active) {
-                SDL_Rect proj_rect = {
-                    (int)projectiles[i].x,
-                    (int)projectiles[i].y,
-                    15, 15
-                };
-
-                int obstacle_collision = 0;
-                for (int j = 0; j < num_obstaculos[mapa_atual]; j++) {
-                    if (SDL_HasIntersection(&proj_rect, &obstaculos[mapa_atual][j].rect)) {
-                        obstacle_collision = 1;
-                        break;
-                    }
-                }
-
-                if (obstacle_collision) {
-                    projectiles[i].is_active = FALSE;
-                    continue; // Pula para o próximo projétil
-                }
-            }
-        }
-        // Movimento dos projéteis
-        for (int i = 0; i < MAX_PROJECTILES; i++) {
-            if (projectiles[i].is_active) {
-                if (!projectiles[i].from_square &&
-                    check_collision(projectiles[i].x, projectiles[i].y, 15, 15,
-                        square.x, square.y, square.width, square.height)) {
-                    printf("Square atingido!\n");
-                    projectiles[i].is_active = FALSE;
-                    square_life--;
-                }
-                if (projectiles[i].from_square &&
-                    check_collision(projectiles[i].x, projectiles[i].y, 15, 15,
-                        ball.x, ball.y, ball.width, ball.height)) {
-                    printf("Ball atingido!\n");
-                    projectiles[i].is_active = FALSE;
-                    ball_life--;
-                }
-                if (ball_life == 0) {
-                    printf("Vitoria de square!\n");
-                    game_is_running = FALSE;
-                }
-                if (square_life == 0) {
-                    printf("Vitoria de ball!\n");
-                    game_is_running = FALSE;
-                }
-
-                switch (projectiles[i].dir) {
-                case DIR_UP: projectiles[i].y -= projectiles[i].speed * delta_time; break;
-                case DIR_DOWN: projectiles[i].y += projectiles[i].speed * delta_time; break;
-                case DIR_LEFT: projectiles[i].x -= projectiles[i].speed * delta_time; break;
-                case DIR_RIGHT: projectiles[i].x += projectiles[i].speed * delta_time; break;
-                case DIR_UPLEFT: projectiles[i].x -= projectiles[i].speed * delta_time; projectiles[i].y -= projectiles[i].speed * delta_time; break;
-                case DIR_UPRIGHT: projectiles[i].x += projectiles[i].speed * delta_time; projectiles[i].y -= projectiles[i].speed * delta_time; break;
-                case DIR_DOWNLEFT: projectiles[i].x -= projectiles[i].speed * delta_time; projectiles[i].y += projectiles[i].speed * delta_time; break;
-                case DIR_DOWNRIGHT: projectiles[i].x += projectiles[i].speed * delta_time; projectiles[i].y += projectiles[i].speed * delta_time; break;
-                default: break;
-                }
-
-                if (projectiles[i].x < -10 || projectiles[i].x > WINDOW_WIDTH ||
-                    projectiles[i].y < -10 || projectiles[i].y > WINDOW_HEIGHT) {
-                    projectiles[i].is_active = FALSE;
-                }
-            }
-        }
-
-        if (check_collision(ball.x, ball.y, ball.width, ball.height,
-            square.x, square.y, square.width, square.height)) {
-            printf("COLISÃO DETECTADA ENTRE BALL E SQUARE!\n");
-        }
-
-        // Limitar posição de ball
-        if (ball.x < 0) ball.x = 0;
-        if (ball.y < 0) ball.y = 0;
-        if (ball.x + ball.width > WINDOW_WIDTH) ball.x = WINDOW_WIDTH - ball.width;
-        if (ball.y + ball.height > WINDOW_HEIGHT) ball.y = WINDOW_HEIGHT - ball.height;
-
-        // Limitar posição de square
-        if (square.x < 0) square.x = 0;
-        if (square.y < 0) square.y = 0;
-        if (square.x + square.width > WINDOW_WIDTH) square.x = WINDOW_WIDTH - square.width;
-        if (square.y + square.height > WINDOW_HEIGHT) square.y = WINDOW_HEIGHT - square.height;
+    // Disparo de projéteis
+    if (space_pressed) {
+        fire_projectile(FALSE);
+        space_pressed = FALSE;
+    }
+    if (c_pressed) {
+        fire_projectile(TRUE);
+        c_pressed = FALSE;
     }
 
+    // Verifica colisão com obstáculos
+    for (int i = 0; i < MAX_PROJECTILES; i++) {
+        if (projectiles[i].is_active) {
+            SDL_Rect proj_rect = {
+                (int)projectiles[i].x,
+                (int)projectiles[i].y,
+                15, 15
+            };
+
+            int obstacle_collision = 0;
+            for (int j = 0; j < num_obstaculos[mapa_atual]; j++) {
+                if (SDL_HasIntersection(&proj_rect, &obstaculos[mapa_atual][j].rect)) {
+                    obstacle_collision = 1;
+                    break;
+                }
+            }
+
+            if (obstacle_collision) {
+                projectiles[i].is_active = FALSE;
+                continue; // Pula para o próximo projétil
+            }
+        }
+    }
+    // Movimento dos projéteis
+    for (int i = 0; i < MAX_PROJECTILES; i++) {
+        if (projectiles[i].is_active) {
+            if (!projectiles[i].from_square &&
+                check_collision(projectiles[i].x, projectiles[i].y, 15, 15,
+                    square.x, square.y, square.width, square.height)) {
+                printf("Square atingido!\n");
+                projectiles[i].is_active = FALSE;
+                square_life--;
+            }
+            if (projectiles[i].from_square &&
+                check_collision(projectiles[i].x, projectiles[i].y, 15, 15,
+                    ball.x, ball.y, ball.width, ball.height)) {
+                printf("Ball atingido!\n");
+                projectiles[i].is_active = FALSE;
+                ball_life--;
+            }
+            if (ball_life == 0) {
+                printf("Vitoria de square!\n");
+                game_is_running = FALSE;
+            }
+            if (square_life == 0) {
+                printf("Vitoria de ball!\n");
+                game_is_running = FALSE;
+            }
+
+            switch (projectiles[i].dir) {
+            case DIR_UP: projectiles[i].y -= projectiles[i].speed * delta_time; break;
+            case DIR_DOWN: projectiles[i].y += projectiles[i].speed * delta_time; break;
+            case DIR_LEFT: projectiles[i].x -= projectiles[i].speed * delta_time; break;
+            case DIR_RIGHT: projectiles[i].x += projectiles[i].speed * delta_time; break;
+            case DIR_UPLEFT: projectiles[i].x -= projectiles[i].speed * delta_time; projectiles[i].y -= projectiles[i].speed * delta_time; break;
+            case DIR_UPRIGHT: projectiles[i].x += projectiles[i].speed * delta_time; projectiles[i].y -= projectiles[i].speed * delta_time; break;
+            case DIR_DOWNLEFT: projectiles[i].x -= projectiles[i].speed * delta_time; projectiles[i].y += projectiles[i].speed * delta_time; break;
+            case DIR_DOWNRIGHT: projectiles[i].x += projectiles[i].speed * delta_time; projectiles[i].y += projectiles[i].speed * delta_time; break;
+            default: break;
+            }
+
+            if (projectiles[i].x < -10 || projectiles[i].x > WINDOW_WIDTH ||
+                projectiles[i].y < -10 || projectiles[i].y > WINDOW_HEIGHT) {
+                projectiles[i].is_active = FALSE;
+            }
+        }
+    }
+
+    if (check_collision(ball.x, ball.y, ball.width, ball.height,
+        square.x, square.y, square.width, square.height)) {
+        printf("COLISÃO DETECTADA ENTRE BALL E SQUARE!\n");
+    }
+
+    // Limitar posição de ball
+    if (ball.x < 0) ball.x = 0;
+    if (ball.y < 0) ball.y = 0;
+    if (ball.x + ball.width > WINDOW_WIDTH) ball.x = WINDOW_WIDTH - ball.width;
+    if (ball.y + ball.height > WINDOW_HEIGHT) ball.y = WINDOW_HEIGHT - ball.height;
+
+    // Limitar posição de square
+    if (square.x < 0) square.x = 0;
+    if (square.y < 0) square.y = 0;
+    if (square.x + square.width > WINDOW_WIDTH) square.x = WINDOW_WIDTH - square.width;
+    if (square.y + square.height > WINDOW_HEIGHT) square.y = WINDOW_HEIGHT - square.height;
+}
+
 void render() {
-    
+
     SDL_RenderClear(renderer);
 
     // Renderiza os mapas
     if (background_textures[mapa_atual]) {
         SDL_RenderCopy(renderer, background_textures[mapa_atual], NULL, NULL);
-    }else{
+    }
+    else {
         SDL_SetRenderDrawColor(renderer, 122, 122, 122, 0);
         SDL_RenderClear(renderer);
     }
@@ -511,7 +512,7 @@ void render() {
     // Renderiza projéteis
     for (int i = 0; i < MAX_PROJECTILES; i++) {
         if (projectiles[i].is_active) {
-            SDL_Rect proj_rect = { (int)projectiles[i].x, (int)projectiles[i].y, 15, 15};
+            SDL_Rect proj_rect = { (int)projectiles[i].x, (int)projectiles[i].y, 15, 15 };
             if (projectiles[i].texture) {
                 SDL_RenderCopy(renderer, projectiles[i].texture, NULL, &proj_rect);
             }
@@ -546,17 +547,17 @@ void render() {
     SDL_RenderPresent(renderer);
 }
 
-void destroy_window(){
+void destroy_window() {
     if (ball.texture) {
         SDL_DestroyTexture(ball.texture);
     }
     if (square.texture) {
         SDL_DestroyTexture(square.texture);
     }
-	for (int i = 0; i < MAX_MAPAS; i++) {
-		if (background_textures[i]) {
-			SDL_DestroyTexture(background_textures[i]);
-		}
+    for (int i = 0; i < MAX_MAPAS; i++) {
+        if (background_textures[i]) {
+            SDL_DestroyTexture(background_textures[i]);
+        }
     }
 
     for (int i = 0; i < MAX_PROJECTILES; i++) {
@@ -572,18 +573,33 @@ void destroy_window(){
 }
 
 int main() {
-        
-        game_is_running = initialize_window();
-        setup();
+    printf("===== Selecione o plano de fundo =====\n");
+    printf("1 - Padrao \n");
+    printf("2 - Mata da Ufpb \n");
+    printf("3 - Uma Vez Flamengo... \n");
 
-        while (game_is_running) {
-            process_input();
-            update();
-            render();
+    int escolha = 0;
+    while (escolha < 1 || escolha > 3) {
+        printf("Digite sua escolha (1-3): ");
+        scanf_s("%d", &escolha);
+        if (escolha < 1 || escolha > 3) {
+            printf("Opcao invalida! Tente novamente.\n");
         }
+    }
 
-        destroy_window();
 
-       //scanf_s("%d", &mopa);
-        return 0;
+    mapa_atual = escolha - 1;
+    game_is_running = initialize_window();
+    setup();
+
+    while (game_is_running) {
+        process_input();
+        update();
+        render();
+    }
+
+    destroy_window();
+    int mopa;
+    scanf_s("%d", &mopa);
+    return 0;
 }
