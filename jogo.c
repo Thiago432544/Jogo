@@ -45,6 +45,7 @@ struct ball {
     float height;
     SDL_Texture* texture;
     Direction last_dir;
+    char personagem_path[50];
 } ball;
 
 struct square {
@@ -54,6 +55,7 @@ struct square {
     float height;
     SDL_Texture* texture;
     Direction last_dir;
+    char personagem_path[50];
 }square;
 
 typedef struct {
@@ -156,87 +158,7 @@ int check_collision(float x1, float y1, float w1, float h1,
         y1 + h1 > y2);
 }
 
-void setup() {
 
-    const char* background_paths[MAX_MAPAS] = {
-    "assets/background.png",
-    "assets/background2.png",
-    "assets/background3.png"
-    };
-
-    for (int i = 0; i < MAX_MAPAS; i++) {
-        SDL_Surface* bg_surface = IMG_Load(background_paths[i]);
-        if (bg_surface) {
-            background_textures[i] = SDL_CreateTextureFromSurface(renderer, bg_surface);
-            SDL_FreeSurface(bg_surface);
-        }
-        else {
-            printf("Erro carregando background %d: %s\n", i, IMG_GetError());
-        }
-    }
-
-    // Obstáculos para o mapa 1
-    num_obstaculos[1] = 3;
-    obstaculos[1][0] = (obstacle){ 650, 760, 550, 300 };
-    obstaculos[1][1] = (obstacle){ 650, 200, 100, 500 };
-    // obstaculos[1][2] = (obstacle){ 350, 450, 120, 60 };
-
-     // Obstáculos para o mapa 2
-    num_obstaculos[2] = 4;
-    obstaculos[2][0] = (obstacle){ 650, 700, 500, 100 };
-    obstaculos[2][1] = (obstacle){ 650, 300, 100, 500 };
-    obstaculos[2][2] = (obstacle){ 100, 700, 150, 300 };
-    obstaculos[2][3] = (obstacle){ 400, 600, 60, 180 };
-
-    for (int i = 0; i < MAX_MAPAS; i++) {
-        for (int j = 0; j < num_obstaculos[i]; j++) {
-            obstaculos[i][j].rect.x = (int)obstaculos[i][j].x;
-            obstaculos[i][j].rect.y = (int)obstaculos[i][j].y;
-            obstaculos[i][j].rect.w = (int)obstaculos[i][j].width;
-            obstaculos[i][j].rect.h = (int)obstaculos[i][j].height;
-        }
-    }
-    // Estrutura da bola
-    ball.x = WINDOW_WIDTH / 4;
-    ball.y = WINDOW_HEIGHT / 2.16;
-    ball.width = 75;
-    ball.height = 75;
-    ball.last_dir = DIR_RIGHT; // Direção inicial padrão
-
-    // Carrega textura da bola
-    SDL_Surface* tmpSurface = IMG_Load("assets/mario.png");
-    if (tmpSurface) {
-        ball.texture = SDL_CreateTextureFromSurface(renderer, tmpSurface);
-        SDL_FreeSurface(tmpSurface);
-    }
-    // Estrutura do quadrado
-    square.x = WINDOW_WIDTH / 1.47;
-    square.y = WINDOW_HEIGHT / 2.16;
-    square.width = 75;
-    square.height = 75;
-    square.last_dir = DIR_LEFT;
-
-    tmpSurface = IMG_Load("assets/meneghetti.png");
-    if (tmpSurface) {
-        square.texture = SDL_CreateTextureFromSurface(renderer, tmpSurface);
-        SDL_FreeSurface(tmpSurface);
-    }
-
-
-    // Inicializa projéteis
-    for (int i = 0; i < MAX_PROJECTILES; i++) {
-        projectiles[i].is_active = FALSE;
-        projectiles[i].speed = 800.0f;
-        projectiles[i].texture = NULL;
-
-        // Cria superfície simples para o projétil 
-        tmpSurface = IMG_Load("assets/c.png");
-        if (tmpSurface) {
-            projectiles[i].texture = SDL_CreateTextureFromSurface(renderer, tmpSurface);
-            SDL_FreeSurface(tmpSurface);
-        }
-    }
-}
 void fire_projectile(int from_square) {
     Direction dir;
     float x, y;
@@ -571,6 +493,147 @@ void destroy_window() {
     IMG_Quit();
     SDL_Quit();
 }
+void mostrarMenuPersonagens(const char* jogador) {
+    printf("\n===== %s, selecione seu personagem =====\n", jogador);
+    for (int i = 0; i < NUM_PERSONAGENS; i++) {
+        printf("%d - %s\n", i + 1, PERSONAGENS[i]);
+    }
+}
+
+void selecionarPersonagens() {
+    int escolhaP1 = 0, escolhaP2 = 0;
+
+    // Player 1
+    printf("\n===== Player 1 (Ball), selecione seu personagem =====\n");
+    for (int i = 0; i < NUM_PERSONAGENS; i++) {
+        printf("%d - %s\n", i + 1, PERSONAGENS[i]);
+    }
+
+    while (escolhaP1 < 1 || escolhaP1 > NUM_PERSONAGENS) {
+        printf("Digite sua escolha (1-%d): ", NUM_PERSONAGENS);
+        scanf_s("%d", &escolhaP1);
+        if (escolhaP1 < 1 || escolhaP1 > NUM_PERSONAGENS) {
+            printf("Opcao invalida! Tente novamente.\n");
+        }
+    }
+
+    // Player 2
+    printf("\n===== Player 2 (Square), selecione seu personagem =====\n");
+    for (int i = 0; i < NUM_PERSONAGENS; i++) {
+        printf("%d - %s\n", i + 1, PERSONAGENS[i]);
+    }
+
+    while (escolhaP2 < 1 || escolhaP2 > NUM_PERSONAGENS) {
+        printf("Digite sua escolha (1-%d): ", NUM_PERSONAGENS);
+        scanf_s("%d", &escolhaP2);
+        if (escolhaP2 < 1 || escolhaP2 > NUM_PERSONAGENS) {
+            printf("Opcao invalida! Tente novamente.\n");
+        }
+    }
+
+    // Construir caminhos das texturas
+    snprintf(ball.personagem_path, sizeof(ball.personagem_path), "assets/%s.png", PERSONAGENS[escolhaP1 - 1]);
+    snprintf(square.personagem_path, sizeof(square.personagem_path), "assets/%s.png", PERSONAGENS[escolhaP2 - 1]);
+}
+void setup() {
+
+    const char* background_paths[MAX_MAPAS] = {
+    "assets/background.png",
+    "assets/background2.png",
+    "assets/background3.png"
+    };
+
+    for (int i = 0; i < MAX_MAPAS; i++) {
+        SDL_Surface* bg_surface = IMG_Load(background_paths[i]);
+        if (bg_surface) {
+            background_textures[i] = SDL_CreateTextureFromSurface(renderer, bg_surface);
+            SDL_FreeSurface(bg_surface);
+        }
+        else {
+            printf("Erro carregando background %d: %s\n", i, IMG_GetError());
+        }
+    }
+
+    // Obstáculos para o mapa 1
+    num_obstaculos[1] = 3;
+    obstaculos[1][0] = (obstacle){ 650, 760, 550, 300 };
+    obstaculos[1][1] = (obstacle){ 650, 200, 100, 500 };
+    // obstaculos[1][2] = (obstacle){ 350, 450, 120, 60 };
+
+     // Obstáculos para o mapa 2
+    num_obstaculos[2] = 4;
+    obstaculos[2][0] = (obstacle){ 650, 700, 500, 100 };
+    obstaculos[2][1] = (obstacle){ 650, 300, 100, 500 };
+    obstaculos[2][2] = (obstacle){ 100, 700, 150, 300 };
+    obstaculos[2][3] = (obstacle){ 400, 600, 60, 180 };
+
+    for (int i = 0; i < MAX_MAPAS; i++) {
+        for (int j = 0; j < num_obstaculos[i]; j++) {
+            obstaculos[i][j].rect.x = (int)obstaculos[i][j].x;
+            obstaculos[i][j].rect.y = (int)obstaculos[i][j].y;
+            obstaculos[i][j].rect.w = (int)obstaculos[i][j].width;
+            obstaculos[i][j].rect.h = (int)obstaculos[i][j].height;
+        }
+    }
+    // Estrutura da bola
+    ball.x = WINDOW_WIDTH / 4;
+    ball.y = WINDOW_HEIGHT / 2.16;
+    ball.width = 75;
+    ball.height = 75;
+    ball.last_dir = DIR_RIGHT; // Direção inicial padrão
+
+    // Carrega textura da bola
+    SDL_Surface* tmpSurface = IMG_Load(ball.personagem_path);
+    if (tmpSurface) {
+        ball.texture = SDL_CreateTextureFromSurface(renderer, tmpSurface);
+        SDL_FreeSurface(tmpSurface);
+    }
+    else {
+        printf("Erro ao carregar textura do Player 1 (%s): %s\n", ball.personagem_path, IMG_GetError());
+        // Carrega uma textura padrão se necessário
+        tmpSurface = IMG_Load("assets/padrao.png");  // Adicione uma fallback texture
+        if (tmpSurface) {
+            ball.texture = SDL_CreateTextureFromSurface(renderer, tmpSurface);
+            SDL_FreeSurface(tmpSurface);
+        }
+    }
+    // Estrutura do quadrado
+    square.x = WINDOW_WIDTH / 1.47;
+    square.y = WINDOW_HEIGHT / 2.16;
+    square.width = 75;
+    square.height = 75;
+    square.last_dir = DIR_LEFT;
+
+    tmpSurface = IMG_Load(square.personagem_path);
+    if (tmpSurface) {
+        square.texture = SDL_CreateTextureFromSurface(renderer, tmpSurface);
+        SDL_FreeSurface(tmpSurface);
+    }
+    else {
+        printf("Erro ao carregar textura do Player 2 (%s): %s\n", square.personagem_path, IMG_GetError());
+        // Carrega uma textura padrão se necessário
+        tmpSurface = IMG_Load("assets/padrao.png");  // Mesma fallback
+        if (tmpSurface) {
+            square.texture = SDL_CreateTextureFromSurface(renderer, tmpSurface);
+            SDL_FreeSurface(tmpSurface);
+        }
+    }
+
+
+    // Inicializa projéteis
+    for (int i = 0; i < MAX_PROJECTILES; i++) {
+        projectiles[i].is_active = FALSE;
+        projectiles[i].speed = 800.0f;
+        projectiles[i].texture = NULL;
+
+        // Cria superfície simples para o projétil 
+        tmpSurface = IMG_Load("assets/c.png");
+        if (tmpSurface) {
+            projectiles[i].texture = SDL_CreateTextureFromSurface(renderer, tmpSurface);
+            SDL_FreeSurface(tmpSurface);
+        }
+    }
+}
 
 int main() {
     printf("===== Selecione o plano de fundo =====\n");
@@ -589,6 +652,7 @@ int main() {
 
 
     mapa_atual = escolha - 1;
+    selecionarPersonagens();
     game_is_running = initialize_window();
     setup();
 
