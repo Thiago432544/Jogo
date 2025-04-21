@@ -1,0 +1,10 @@
+﻿  jogo.c
+C:\Users\migue\source\repos\Jogo-main\Jogo\jogo.c(213,28): warning C4305: '=': truncamento de 'double' para 'float'
+C:\Users\migue\source\repos\Jogo-main\Jogo\jogo.c(225,29): warning C4305: '=': truncamento de 'double' para 'float'
+C:\Users\migue\source\repos\Jogo-main\Jogo\jogo.c(226,30): warning C4305: '=': truncamento de 'double' para 'float'
+C:\Users\migue\source\repos\Jogo-main\Jogo\jogo.c(597,49): warning C4244: 'inicializando': conversão de 'double' para 'int', possível perda de dados
+C:\Users\migue\source\repos\Jogo-main\Jogo\jogo.c(606,82): warning C4244: 'inicializando': conversão de 'double' para 'int', possível perda de dados
+C:\Users\migue\source\repos\Jogo-main\Jogo\jogo.c(642,5): warning C4026: função declarada com lista de parâmetros formais
+  main.c
+  Gerando Código...
+  Jogo.vcxproj -> C:\Users\migue\source\repos\Jogo-main\x64\Debug\Jogo.exe
