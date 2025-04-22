@@ -175,13 +175,13 @@ void setup() {
         }
     }
 
-    // Obstáculos para o mapa 1
+    // Obstï¿½culos para o mapa 1
     num_obstaculos[1] = 3;
     obstaculos[1][0] = (obstacle){ 650, 760, 550, 300 };
     obstaculos[1][1] = (obstacle){ 650, 200, 100, 500 };
    // obstaculos[1][2] = (obstacle){ 350, 450, 120, 60 };
 
-    // Obstáculos para o mapa 2
+    // Obstï¿½culos para o mapa 2
     num_obstaculos[2] = 4;
     obstaculos[2][0] = (obstacle){ 650, 700, 500, 100 };
     obstaculos[2][1] = (obstacle){ 650, 300, 100, 500 };
@@ -201,7 +201,7 @@ void setup() {
     ball.y = WINDOW_HEIGHT / 2.16;
     ball.width = 75;
     ball.height = 75;
-    ball.last_dir = DIR_RIGHT; // Direção inicial padrão
+    ball.last_dir = DIR_RIGHT; // Direï¿½ï¿½o inicial padrï¿½o
 
     // Carrega textura da bola
     SDL_Surface* tmpSurface = IMG_Load("assets/mario.png");
@@ -223,13 +223,13 @@ void setup() {
     }
 
 
-    // Inicializa projéteis
+    // Inicializa projï¿½teis
     for (int i = 0; i < MAX_PROJECTILES; i++) {
         projectiles[i].is_active = FALSE;
         projectiles[i].speed = 800.0f;
         projectiles[i].texture = NULL;
 
-    // Cria superfície simples para o projétil 
+    // Cria superfï¿½cie simples para o projï¿½til 
     tmpSurface = IMG_Load("assets/c.png");     
     if (tmpSurface) {
     projectiles[i].texture = SDL_CreateTextureFromSurface(renderer, tmpSurface);
@@ -288,7 +288,7 @@ void update() {
     float delta_time = (SDL_GetTicks() - last_frame_time) / 1000.0f;
     last_frame_time = SDL_GetTicks();
 
-    // Movimento da bola (ball) com checagem de obstáculos
+    // Movimento da bola (ball) com checagem de obstï¿½culos
     float next_ball_x = ball.x;
     float next_ball_y = ball.y;
 
@@ -321,7 +321,7 @@ void update() {
         ball.last_dir = DIR_DOWNRIGHT;
     }
 
-    // Verifica colisão da bola com obstáculos
+    // Verifica colisï¿½o da bola com obstï¿½culos
     SDL_Rect next_ball_rect = { (int)next_ball_x, (int)next_ball_y, (int)ball.width, (int)ball.height };
     int ball_collision = colidiu_com_obstaculos(next_ball_rect, obstaculos[mapa_atual], num_obstaculos[mapa_atual]);
 
@@ -330,7 +330,7 @@ void update() {
         ball.y = next_ball_y;
     }
 
-    // Movimento do quadrado (square) com checagem de obstáculos
+    // Movimento do quadrado (square) com checagem de obstï¿½culos
     float next_square_x = square.x;
     float next_square_y = square.y;
 
@@ -363,7 +363,7 @@ void update() {
         square.last_dir = DIR_DOWNRIGHT;
     }
 
-    // Verifica colisão do quadrado com obstáculos
+    // Verifica colisï¿½o do quadrado com obstï¿½culos
     SDL_Rect next_square_rect = { (int)next_square_x, (int)next_square_y, (int)square.width, (int)square.height };
     int square_collision = colidiu_com_obstaculos(next_square_rect, obstaculos[mapa_atual], num_obstaculos[mapa_atual]);
 
@@ -372,7 +372,7 @@ void update() {
         square.y = next_square_y;
     }
 
-        // Disparo de projéteis
+        // Disparo de projï¿½teis
         if (space_pressed) {
             fire_projectile(FALSE);
             space_pressed = FALSE;
@@ -382,7 +382,7 @@ void update() {
             c_pressed = FALSE;
         }
         
-        // Verifica colisão com obstáculos
+        // Verifica colisï¿½o com obstï¿½culos
         for (int i = 0; i < MAX_PROJECTILES; i++) {
             if (projectiles[i].is_active) {
                 SDL_Rect proj_rect = {
@@ -401,11 +401,11 @@ void update() {
 
                 if (obstacle_collision) {
                     projectiles[i].is_active = FALSE;
-                    continue; // Pula para o próximo projétil
+                    continue; // Pula para o prï¿½ximo projï¿½til
                 }
             }
         }
-        // Movimento dos projéteis
+        // Movimento dos projï¿½teis
         for (int i = 0; i < MAX_PROJECTILES; i++) {
             if (projectiles[i].is_active) {
                 if (!projectiles[i].from_square &&
@@ -452,16 +452,16 @@ void update() {
 
         if (check_collision(ball.x, ball.y, ball.width, ball.height,
             square.x, square.y, square.width, square.height)) {
-            printf("COLISÃO DETECTADA ENTRE BALL E SQUARE!\n");
+            printf("COLISï¿½O DETECTADA ENTRE BALL E SQUARE!\n");
         }
 
-        // Limitar posição de ball
+        // Limitar posiï¿½ï¿½o de ball
         if (ball.x < 0) ball.x = 0;
         if (ball.y < 0) ball.y = 0;
         if (ball.x + ball.width > WINDOW_WIDTH) ball.x = WINDOW_WIDTH - ball.width;
         if (ball.y + ball.height > WINDOW_HEIGHT) ball.y = WINDOW_HEIGHT - ball.height;
 
-        // Limitar posição de square
+        // Limitar posiï¿½ï¿½o de square
         if (square.x < 0) square.x = 0;
         if (square.y < 0) square.y = 0;
         if (square.x + square.width > WINDOW_WIDTH) square.x = WINDOW_WIDTH - square.width;
@@ -508,7 +508,7 @@ void render() {
         SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
         SDL_RenderFillRect(renderer, &square_rect);
     }
-    // Renderiza projéteis
+    // Renderiza projï¿½teis
     for (int i = 0; i < MAX_PROJECTILES; i++) {
         if (projectiles[i].is_active) {
             SDL_Rect proj_rect = { (int)projectiles[i].x, (int)projectiles[i].y, 15, 15};

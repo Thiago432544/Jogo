@@ -18,7 +18,7 @@
     <ClCompile Include="main.c">
       <Filter>Arquivos de Recurso</Filter>
     </ClCompile>
-    <ClCompile Include="jogo.c">
+    <ClCompile Include="jogo2.c">
       <Filter>Arquivos de Recurso</Filter>
     </ClCompile>
   </ItemGroup>
