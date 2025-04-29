@@ -348,12 +348,18 @@ void update() {
     }
 
     // Verifica colisão da bola com obstáculos
-    SDL_Rect next_ball_rect = { (int)next_ball_x, (int)next_ball_y, (int)ball.width, (int)ball.height };
-    int ball_collision = colidiu_com_obstaculos(next_ball_rect, obstaculos[mapa_atual], num_obstaculos[mapa_atual]);
+    SDL_Rect test_rect;
 
-    if (!ball_collision) {
-        ball.x = next_ball_x;
-        ball.y = next_ball_y;
+    // Teste no eixo X
+    test_rect = (SDL_Rect){ (int)next_ball_x, (int)ball.y, (int)ball.width, (int)ball.height };
+    if (!colidiu_com_obstaculos(test_rect, obstaculos[mapa_atual], num_obstaculos[mapa_atual])) {
+        ball.x = next_ball_x; // Movimento X permitido
+    }
+
+    // Teste no eixo Y
+    test_rect = (SDL_Rect){ (int)ball.x, (int)next_ball_y, (int)ball.width, (int)ball.height };
+    if (!colidiu_com_obstaculos(test_rect, obstaculos[mapa_atual], num_obstaculos[mapa_atual])) {
+        ball.y = next_ball_y; // Movimento Y permitido
     }
 
     // Movimento do quadrado (square) com checagem de obstáculos
@@ -411,11 +417,14 @@ void update() {
     }
 
     // Verifica colisão do quadrado com obstáculos
-    SDL_Rect next_square_rect = { (int)next_square_x, (int)next_square_y, (int)square.width, (int)square.height };
-    int square_collision = colidiu_com_obstaculos(next_square_rect, obstaculos[mapa_atual], num_obstaculos[mapa_atual]);
-
-    if (!square_collision) {
+    test_rect = (SDL_Rect){ (int)next_square_x, (int)square.y, (int)square.width, (int)square.height };
+    if (!colidiu_com_obstaculos(test_rect, obstaculos[mapa_atual], num_obstaculos[mapa_atual])) {
         square.x = next_square_x;
+    }
+
+    // Teste no eixo Y
+    test_rect = (SDL_Rect){ (int)square.x, (int)next_square_y, (int)square.width, (int)square.height };
+    if (!colidiu_com_obstaculos(test_rect, obstaculos[mapa_atual], num_obstaculos[mapa_atual])) {
         square.y = next_square_y;
     }
 
@@ -840,13 +849,17 @@ void setup() {
      // Obstáculos para o mapa 2
     
     num_obstaculos[2] = 10;
-    obstaculos[2][0] = (obstacle){ 650, 700, 500, 100 };
-    obstaculos[2][1] = (obstacle){ 650, 300, 100, 500 };
-    obstaculos[2][2] = (obstacle){ 100, 700, 150, 300 };
-    obstaculos[2][3] = (obstacle){ 400, 600, 60, 180 };
-	obstaculos[2][4] = (obstacle){ 400, 300, 60, 180 };
-	obstaculos[2][5] = (obstacle){ 400, 0, 60, 180 };
-	obstaculos[2][6] = (obstacle){ 1000, 700, 150, 300 };
+    obstaculos[2][1] = (obstacle){ 750, 300, 60, 180 };
+    obstaculos[2][2] = (obstacle){ 750, 600, 60, 180 };
+    obstaculos[2][3] = (obstacle){ 400, 750, 60, 180 };
+	obstaculos[2][4] = (obstacle){ 400, 450, 60, 180 };
+	obstaculos[2][5] = (obstacle){ 400, 150, 60, 180 };
+	obstaculos[2][6] = (obstacle){ 1050, 300, 60, 180 };
+	obstaculos[2][7] = (obstacle){ 1050, 600, 60, 180 };
+	obstaculos[2][8] = (obstacle){ 1400, 750, 60, 180 };
+	obstaculos[2][9] = (obstacle){ 1400, 450, 60, 180 };
+	obstaculos[2][0] = (obstacle){ 1400, 150, 60, 180 };
+	
 
     for (int i = 0; i < MAX_MAPAS; i++) {
         for (int j = 0; j < num_obstaculos[i]; j++) {
